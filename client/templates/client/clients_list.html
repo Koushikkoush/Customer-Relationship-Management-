@@ -1,0 +1,314 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Clients{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold text-primary">Clients</h1>
+        <div>
+            <a href="{% url 'clients:add' %}" class="btn btn-primary me-2 rounded-pill shadow-sm">
+                <i class="fas fa-plus me-1"></i> Add Client
+            </a>
+            <a href="{% url 'clients:export' %}" class="btn btn-outline-secondary rounded-pill">
+                <i class="fas fa-download me-1"></i> Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Icon that reveals search form -->
+    {% comment %} <div class="card shadow-sm mb-4 border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="search-container position-relative">
+                <form method="get" action="{% url 'clients:list' %}" class="row g-0 m-0 search-form">
+                    <div class="col-11 p-0">
+                        <input type="text" name="search" value="{{ request.GET.search }}" class="form-control border-0 rounded-0 ps-3 search-input" 
+                               placeholder="Search by name, email, or service..." style="height: 50px;">
+                    </div>
+                    <div class="col-1 p-0">
+                        <button type="submit" class="btn btn-primary h-100 w-100 rounded-0">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                <button class="btn btn-link position-absolute top-0 end-0 search-toggle" style="z-index: 10; height: 50px; width: 50px;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div> {% endcomment %}
+
+
+
+
+    <div class="card shadow-sm mb-4 border-0 rounded-3">
+        <div class="card-body p-3">
+            <form method="get" action="{% url 'clients:list' %}" class="row g-2">
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" name="name" value="{{ request.GET.name }}" 
+                               class="form-control border-0 bg-light" placeholder="Client name...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="text" name="email" value="{{ request.GET.email }}" 
+                               class="form-control border-0 bg-light" placeholder="Email...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-cog"></i>
+                        </span>
+                        <select name="service" class="form-select border-0 bg-light">
+                            <option value="">All Services</option>
+                            <option value="Web" {% if request.GET.service == 'Web' %}selected{% endif %}>Website</option>
+                            <option value="App" {% if request.GET.service == 'App' %}selected{% endif %}>Mobile App</option>
+                            <option value="Web+App" {% if request.GET.service == 'Web+App' %}selected{% endif %}>Web + App</option>
+                            <option value="Other" {% if request.GET.service == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-calendar"></i>
+                        </span>
+                        <select name="date_filter" class="form-select border-0 bg-light">
+                            <option value="">All Dates</option>
+                            <option value="today" {% if request.GET.date_filter == 'today' %}selected{% endif %}>Today</option>
+                            <option value="week" {% if request.GET.date_filter == 'week' %}selected{% endif %}>This Week</option>
+                            <option value="month" {% if request.GET.date_filter == 'month' %}selected{% endif %}>This Month</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1 text-black">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                        <a href="{% url 'clients:list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo">clear</i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+    {% if clients %}
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-3">Client</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Service</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">Cost</th>
+                            <th scope="col" class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                            <tr>
+                                <td class="align-middle ps-3 fw-medium">{{ client.name }}</td>
+                                <td class="align-middle">{{ client.email }}</td>
+                                <td class="align-middle">{{ client.phone_number }}</td>
+                                <td class="align-middle">
+                                    <span class="badge bg-light text-dark">
+                                        {{ client.get_service_display }}
+                                        {% if client.custom_service %}
+                                        ({{ client.custom_service }})
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="align-middle">
+                                    {% if client.start_date %}
+                                    <span class="text-primary">{{ client.start_date|date:"M d, Y" }}</span>
+                                    {% else %}
+                                    <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">
+                                    {% if client.end_date %}
+                                    <span class="text-primary">{{ client.end_date|date:"M d, Y" }}</span>
+                                    {% else %}
+                                    <span class="text-muted">Not set</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle fw-medium">{{ client.final_cost }}</td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group">
+                                        <a href="{% url 'clients:detail' client.id %}" class="btn btn-sm btn-outline-secondary" title="View">
+                                            <i class="fas fa-eye">View</i>
+                                        </a>
+                                        <a href="{% url 'clients:edit' client.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit">edit</i>
+                                        </a>
+                                        <a href="{% url 'clients:delete' client.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                            <i class="fas fa-trash">delete</i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link border-0" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link border-0" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link border-0">
+                        <i class="fas fa-angle-double-left"></i>
+                    </span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link border-0">
+                        <i class="fas fa-angle-left"></i>
+                    </span>
+                </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link border-0">
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link border-0" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link border-0" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link border-0">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                </li>
+                <li class="page-item disabled">
+                    <span class="page-link border-0">
+                        <i class="fas fa-angle-double-right"></i>
+                    </span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info border-0 shadow-sm rounded-3">
+            <i class="fas fa-info-circle me-2"></i>No clients found in the database yet...
+        </div>
+    {% endif %}
+</div>
+
+
+<style>
+    /* Add these styles to your existing styles */
+    .input-group-text {
+        color: #6c757d;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: #fff !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        border-color: #86b7fe;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+    </style>
+
+<!-- JavaScript for search toggle -->
+<script>
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit on service and date filter change
+        document.querySelectorAll('select[name="service"], select[name="date_filter"]').forEach(select => {
+            select.addEventListener('change', function() {
+                this.closest('form').submit();
+            });
+        });
+    
+        // Clear individual fields
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    this.value = '';
+                    this.closest('form').submit();
+                }
+            });
+        });
+    });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchToggle = document.querySelector('.search-toggle');
+    const searchForm = document.querySelector('.search-form');
+    const searchInput = document.querySelector('.search-input');
+    
+    // Initially hide the search form
+    searchForm.style.display = 'none';
+    
+    searchToggle.addEventListener('click', function() {
+        if (searchForm.style.display === 'none') {
+            searchForm.style.display = 'flex';
+            searchInput.focus();
+            searchToggle.style.display = 'none';
+        } else {
+            searchForm.style.display = 'none';
+            searchToggle.style.display = 'block';
+        }
+    });
+    
+    // If search has a value, show the form
+    if (searchInput.value) {
+        searchForm.style.display = 'flex';
+        searchToggle.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

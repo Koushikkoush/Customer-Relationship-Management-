@@ -1,0 +1,339 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Add Client{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-1">
+                    <h1 class="h5 mb-0"><i class="fas fa-building me-1"></i>Add New Client</h1>
+                </div>
+                <div class="card-body p-2">
+                    <form method="post" action="{% url 'clients:add' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Hidden Fields -->
+                        <input type="hidden" name="team" value="{{ request.user.userprofile.active_team.id }}">
+                        <input type="hidden" name="created_by" value="{{ request.user.id }}">
+                        
+                        <!-- Error Messages -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger mb-2 py-1 px-2">
+                            <h6 class="alert-heading mb-1 small"><i class="fas fa-exclamation-triangle me-1"></i>Please correct the errors:</h6>
+                            <ul class="mb-0 ps-3 small">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li>{{ field.label }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row g-1">
+                            <!-- Basic Information -->
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.name.id_for_label }}" class="form-label small mb-0">Company Name</label>
+                                    {{ form.name }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label small mb-0">Email</label>
+                                    {{ form.email }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label small mb-0">Phone Number</label>
+                                    {{ form.phone_number }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.contacted_person_name.id_for_label }}" class="form-label small mb-0">Contact Person</label>
+                                    {{ form.contacted_person_name }}
+                                </div>
+                            </div>
+
+                            <!-- Service Information -->
+                            {% comment %} <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.service.id_for_label }}" class="form-label small mb-0">Service Type</label>
+                                    {{ form.service }}
+                                </div>
+                            </div> {% endcomment %}
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group service-type-group">
+                                    <label for="{{ form.service.id_for_label }}" class="form-label fw-bold mb-1">
+                                        <i class="fas fa-cogs me-1"></i>Service Type
+                                    </label>
+                                    {{ form.service }}
+                                </div>
+                            </div>
+                            
+
+                            <div class="col-md-3 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.custom_service.id_for_label }}" class="form-label small mb-0">Custom Service</label>
+                                    {{ form.custom_service }}
+                                </div>
+                            </div>
+
+                            <!-- Financial Information -->
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.approved_cost.id_for_label }}" class="form-label small mb-0">Approved Cost</label>
+                                    {{ form.approved_cost }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.gst_service_percentage.id_for_label }}" class="form-label small mb-0">GST (%)</label>
+                                    {{ form.gst_service_percentage }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="final_cost" class="form-label small mb-0">Final Cost</label>
+                                    <input type="number" id="final_cost" name="final_cost" class="form-control form-control-sm" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Date Information -->
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="{{ form.start_date.id_for_label }}" class="form-label small mb-0">Start Date</label>
+                                    {{ form.start_date }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="working_days" class="form-label small mb-0">Working Days</label>
+                                    <input type="number" id="working_days" name="working_days" class="form-control form-control-sm" min="1" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2 mb-1">
+                                <div class="form-group">
+                                    <label for="end_date" class="form-label small mb-0">End Date</label>
+                                    <input type="text" id="end_date" name="end_date" class="form-control form-control-sm" readonly>
+                                </div>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12 mb-2">
+                                <div class="form-group">
+                                    <label for="{{ form.description.id_for_label }}" class="form-label small mb-6">Description</label>
+                                    {{ form.description }}
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="col-12 mt-1">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'clients:list' %}" class="btn btn-outline-secondary btn-sm py-0">
+                                        <i class="fas fa-arrow-left me-1"></i>Back
+                                    </a>
+                                    <button type="submit" class="btn btn-primary btn-sm text-black py-0">
+                                        <i class="fas fa-save me-1"></i>Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Ultra-compact form styles */
+    .form-control, .form-select {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.8rem;
+        min-height: 24px;
+        height: 24px;
+        border-radius: 0.25rem;
+        border: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+    }
+    
+    .form-check-input {
+        width: 0.8rem;
+        height: 0.8rem;
+        margin-top: 0.1rem;
+    }
+    
+    .form-check-label {
+        font-size: 0.8rem;
+    }
+    
+    /* Remove all unnecessary spacing */
+    .card-body {
+        padding: 0.5rem;
+    }
+    
+    .mb-1 {
+        margin-bottom: 0.15rem !important;
+    }
+    
+    .form-group {
+        margin-bottom: 0.15rem;
+    }
+    
+    /* Standardize input heights */
+    input.form-control, select.form-select {
+        height: 24px;
+    }
+    
+    /* Reduce textarea height */
+    textarea.form-control {
+        min-height: 40px;
+        height: 40px !important;
+    }
+    
+    /* Smaller labels */
+    label.form-label {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+        color: #555;
+    }
+    
+    /* Smaller buttons */
+    .btn-sm {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.75rem;
+        line-height: 2.2;
+    }
+    
+    /* Tighter column layout */
+    .row.g-1 {
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+    
+    .row.g-1 > [class*="col-"] {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+    
+    /* Smaller alert */
+    .alert {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Focus styles */
+    .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+    }
+
+
+
+    .service-type-group select {
+        height: 28px !important;
+        font-size: 0.85rem !important;
+        padding: 0.25rem 0.5rem !important;
+        background-color: #fff !important;
+        {% comment %} border: 2px solid #0d6efd !important; {% endcomment %}
+        border-radius: 4px !important;
+    }
+    
+    .service-type-group select:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+    }
+    
+    .service-type-group label {
+        {% comment %} color: #0d6efd !important; {% endcomment %}
+        font-size: 0.85rem !important;
+    }
+    
+    .service-type-group select option {
+        padding: 8px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .service-type-group select:hover {
+        {% comment %} border-color: #0a58ca !important; {% endcomment %}
+        cursor: pointer;
+    }
+
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const approvedCostInput = document.querySelector('[name="approved_cost"]');
+    const gstInput = document.querySelector('[name="gst_service_percentage"]');
+    const finalCostInput = document.getElementById('final_cost');
+    const startDateInput = document.querySelector('[name="start_date"]');
+    const workingDaysInput = document.getElementById('working_days');
+    const endDateInput = document.getElementById('end_date');
+
+    // Apply Bootstrap classes to form fields
+    const formInputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    formInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.classList.add('form-select', 'form-select-sm');
+        } else {
+            input.classList.add('form-control', 'form-control-sm');
+        }
+    });
+
+    function calculateFinalCost() {
+        const approvedCost = parseFloat(approvedCostInput.value) || 0;
+        const gstPercentage = parseFloat(gstInput.value) || 0;
+        const gstAmount = approvedCost * (gstPercentage / 100);
+        const finalCost = approvedCost + gstAmount;
+        finalCostInput.value = finalCost.toFixed(2);
+    }
+
+    function calculateEndDate() {
+        if (!startDateInput.value || !workingDaysInput.value) return;
+        
+        let startDate = new Date(startDateInput.value);
+        let workingDays = parseInt(workingDaysInput.value);
+        
+        while (workingDays > 0) {
+            startDate.setDate(startDate.getDate() + 1);
+            if (startDate.getDay() !== 0 && startDate.getDay() !== 6) {
+                workingDays--;
+            }
+        }
+        
+        endDateInput.value = startDate.toISOString().split('T')[0];
+    }
+
+    approvedCostInput.addEventListener('input', calculateFinalCost);
+    gstInput.addEventListener('input', calculateFinalCost);
+    startDateInput.addEventListener('input', calculateEndDate);
+    workingDaysInput.addEventListener('input', calculateEndDate);
+
+    // Initial calculations
+    calculateFinalCost();
+    calculateEndDate();
+
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        calculateFinalCost();
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

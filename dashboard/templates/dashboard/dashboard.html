@@ -1,0 +1,561 @@
+{% extends 'core/base.html' %}
+{% load dashboard_extras %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-4">
+    <!-- Summary Stats Cards -->
+    <div class="row g-4 mb-4">
+        <!-- Leads Card -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card bg-gradient-primary text-white h-100 shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 fw-bold text-white-50">Total Leads</h6>
+                           <h2 class="mb-0 display-5 fw-bold">{{ total_leads }}</h2>
+                            <small class="text-white-50">Active Pipeline</small>
+                        </div>
+                        <div class="icon-circle bg-white bg-opacity-10">
+                            <i class="fas fa-user-plus fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Card -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card bg-gradient-success text-white h-100 shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 fw-bold text-white-50">Total Clients</h6>
+                            <h2 class="mb-0 display-5 fw-bold">{{ total_clients }}</h2>
+                            <small class="text-white-50">Active Accounts</small>
+                        </div>
+                        <div class="icon-circle bg-white bg-opacity-10">
+                            <i class="fas fa-users fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversion Rate Card -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card bg-gradient-info text-white h-100 shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 fw-bold text-white-50">Conversion Rate</h6>
+                            <h2 class="mb-0 display-5 fw-bold">
+                                {% if leads|length > 0 %}
+                                    {{ clients|length|multiply:100|divide:leads|length|floatformat:1 }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h2>
+                            <small class="text-white-50">Lead to Client</small>
+                        </div>
+                        <div class="icon-circle bg-white bg-opacity-10">
+                            <i class="fas fa-chart-line fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Negotiations Card -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="card bg-gradient-warning text-white h-100 shadow border-0 rounded-4 overflow-hidden">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1 fw-bold text-white-50">Active Negotiations</h6>
+                            <h2 class="mb-0 display-5 fw-bold">{{ under_negotiation }}</h2>
+                            <small class="text-white-50">In Progress</small>
+                        </div>
+                        <div class="icon-circle bg-white bg-opacity-10">
+                            <i class="fas fa-handshake fa-2x text-white"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area - Now with 3 columns -->
+    <div class="row g-5">
+        <!-- Left Column (33% width) -->
+        <div class="col-lg-4">
+            <!-- Quick Actions Card -->
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-light py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-bolt me-2 text-warning"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'leads:add' %}" class="btn btn-primary btn-action rounded-pill">
+                            <i class="fas fa-plus-circle me-2"></i>New Lead
+                        </a>
+                        <a href="{% url 'clients:add' %}" class="btn btn-success btn-action rounded-pill">
+                            <i class="fas fa-user-plus me-2"></i>Add Client
+                        </a>
+                        <a href="{% url 'leads:list' %}" class="btn btn-info text-white btn-action rounded-pill">
+                            <i class="fas fa-filter me-2"></i>View Leads
+                        </a>
+                        <a href="{% url 'clients:export' %}" class="btn btn-dark btn-action rounded-pill">
+                            <i class="fas fa-file-export me-2"></i>Export Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lead Status Distribution Pie Chart -->
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-light py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-chart-pie me-2 text-primary"></i>Lead Status</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="leadStatsChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            Total Leads: {{ leads|length }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Column (33% width) -->
+        <div class="col-lg-4">
+            <!-- Lead Pipeline -->
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-filter me-2 text-primary"></i>Lead Pipeline</h5>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'leads:list' %}" class="btn btn-outline-primary rounded-start-pill">View All</a>
+                        <a href="{% url 'leads:add' %}" class="btn btn-primary rounded-end-pill">Add Lead</a>
+                    </div>
+                </div>
+                <!-- Lead Pipeline section -->
+<div class="card-body p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-3">Lead</th>
+                    <th>Status</th>
+                    <th class="text-end pe-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if leads %}
+                    {% for lead in leads|slice:":5" %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary-soft text-primary fw-bold me-2">
+                                                {{ lead.client_name|make_list|first|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ lead.client_name }}</div>
+                                                <small class="text-muted">{{ lead.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge status-badge rounded-pill {% if lead.status == 'new' %}bg-info
+                                            {% elif lead.status == 'contacted' %}bg-primary
+                                            {% elif lead.status == 'under negotiation' %}bg-warning
+                                            {% elif lead.status == 'won' %}bg-success
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ lead.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'leads:detail' lead.id %}" class="btn btn-outline-primary rounded-pill">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-folder-open fa-2x mb-2"></i>
+                                            <p class="mb-0">No active leads in the pipeline</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Right Column (33% width) -->
+        <div class="col-lg-4">
+            <!-- Client Details -->
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-success"></i>Client Details</h5>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'clients:list' %}" class="btn btn-outline-primary rounded-start-pill">View All</a>
+                        <a href="{% url 'clients:add' %}" class="btn btn-primary rounded-end-pill">Add Client</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Client</th>
+                                    <th class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if clients %}
+                                     {% for client in clients|slice:":5" %}
+                                <tr class="table-row-hover">
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-success-soft text-success fw-bold me-2">
+                                                {{ client.name|make_list|first|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ client.name }}</div>
+                                                <small class="text-muted">{{ client.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'clients:detail' client.id %}" class="btn btn-outline-primary rounded-pill">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                {% else %}
+    <tr>
+        <td colspan="2" class="text-center py-4">
+            <div class="text-muted">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <p class="mb-0">No active clients found</p>
+            </div>
+        </td>
+    </tr>
+{% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lead Activities Section -->
+            <div class="card shadow border-0 rounded-4 mb-4">
+                <div class="card-header bg-light py-3 border-bottom-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>Upcoming Activities
+                    </h5>
+                    <div class="mt-2 d-flex gap-2">
+                        {% for type_count in activity_counts %}
+                            <span class="badge rounded-pill {% if type_count.activity_type == 'call' %}bg-primary
+                                {% elif type_count.activity_type == 'meeting' %}bg-success
+                                {% else %}bg-info{% endif %}">
+                                {{ type_count.activity_type|title }}: {{ type_count.count }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if lead_activities %}
+                        <div class="list-group list-group-flush">
+                            {% for activity in lead_activities|slice:":3" %}
+                                <div class="list-group-item border-start-0 border-end-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="activity-icon rounded-circle me-2 {% if activity.activity_type == 'call' %}bg-primary-soft
+                                                    {% elif activity.activity_type == 'meeting' %}bg-success-soft
+                                                    {% else %}bg-info-soft{% endif %}">
+                                                    {% if activity.activity_type == 'call' %}
+                                                        <i class="fas fa-phone-alt {% if activity.activity_type == 'call' %}text-primary
+                                                            {% elif activity.activity_type == 'meeting' %}text-success
+                                                            {% else %}text-info{% endif %}"></i>
+                                                    {% elif activity.activity_type == 'meeting' %}
+                                                        <i class="fas fa-users {% if activity.activity_type == 'call' %}text-primary
+                                                            {% elif activity.activity_type == 'meeting' %}text-success
+                                                            {% else %}text-info{% endif %}"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-envelope {% if activity.activity_type == 'call' %}text-primary
+                                                            {% elif activity.activity_type == 'meeting' %}text-success
+                                                            {% else %}text-info{% endif %}"></i>
+                                                    {% endif %}
+                                                </span>
+                                                <span class="fw-medium">{{ activity.title }}</span>
+                                            </div>
+                                            <small class="text-muted d-block">
+                                                With {{ activity.lead.client_name }}
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="small fw-medium">
+                                                {{ activity.date|date:"M d" }}
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ activity.time|time:"g:i A" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <div class="text-muted mb-2">
+                                <i class="fas fa-calendar-day fa-2x"></i>
+                            </div>
+                            <p class="text-muted mb-0">No upcoming activities</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+:root {
+    --primary-gradient: linear-gradient(135deg, #4e73df, #224abe);
+    --success-gradient: linear-gradient(135deg, #1cc88a, #13855c);
+    --info-gradient: linear-gradient(135deg, #36b9cc, #258391);
+    --warning-gradient: linear-gradient(135deg, #f6c23e, #dda20a);
+    --card-transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    --shadow-sm: 0 .125rem .25rem rgba(0,0,0,.075);
+    --shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    --shadow-lg: 0 1rem 3rem rgba(0,0,0,.175);
+}
+
+.bg-gradient-primary {
+    background: var(--primary-gradient);
+}
+.bg-gradient-success {
+    background: var(--success-gradient);
+}
+.bg-gradient-info {
+    background: var(--info-gradient);
+}
+.bg-gradient-warning {
+    background: var(--warning-gradient);
+}
+
+.bg-primary-soft {
+    background-color: rgba(78, 115, 223, 0.1);
+}
+.bg-success-soft {
+    background-color: rgba(28, 200, 138, 0.1);
+}
+.bg-info-soft {
+    background-color: rgba(54, 185, 204, 0.1);
+}
+.bg-warning-soft {
+    background-color: rgba(246, 194, 62, 0.1);
+}
+.bg-danger-soft {
+    background-color: rgba(231, 74, 59, 0.1);
+}
+
+.card {
+    transition: var(--card-transition);
+    border-radius: 1rem;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.status-badge, .priority-badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+}
+
+.btn-action {
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    transition: var(--card-transition);
+}
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+}
+.btn-success {
+    background: var(--success-gradient);
+    border: none;
+}
+.btn-info {
+    background: var(--info-gradient);
+    border: none;
+}
+
+.display-5 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.list-group-item {
+    transition: all 0.2s ease;
+    padding: 1rem;
+}
+.list-group-item:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.table thead th {
+    font-weight: 600;
+    color: #495057;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Improved chart container */
+.chart-container {
+    width: 100%;
+    min-height: 200px;
+}
+</style>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart.js Global Options
+    Chart.defaults.font.family = "'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+    Chart.defaults.font.size = 13;
+    
+    // Lead Statistics Pie Chart - Improved Design
+    const leadStatsCtx = document.getElementById('leadStatsChart').getContext('2d');
+    const leadStatsChart = new Chart(leadStatsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['New', 'Contacted', 'Negotiation', 'Won', 'Lost'],
+            datasets: [{
+                data: [
+                    {{ lead_stats.new }},
+                    {{ lead_stats.contacted }},
+                    {{ lead_stats.under_negotiation }},
+                    {{ lead_stats.won }},
+                    {{ lead_stats.lost }}
+                ],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.9)',
+                    'rgba(75, 192, 192, 0.9)',
+                    'rgba(255, 206, 86, 0.9)',
+                    'rgba(75, 192, 86, 0.9)',
+                    'rgba(255, 99, 132, 0.9)'
+                ],
+                borderColor: '#ffffff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: {
+                            weight: '500'
+                        },
+                        boxWidth: 8,
+                        boxHeight: 8
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((value / total) * 100);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    },
+                    displayColors: true,
+                    usePointStyle: true
+                }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true,
+                duration: 1200,
+                easing: 'easeOutQuart'
+            },
+            spacing: 5
+        }
+    });
+});
+</script>
+{% endblock %}

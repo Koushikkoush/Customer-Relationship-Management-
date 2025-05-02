@@ -1,0 +1,209 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Edit Client{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-12 col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light py-1">
+                    <h1 class="h5 mb-0">Edit Client</h1>
+                </div>
+                <div class="card-body p-2">
+                    <form method="post" action="." class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-1">
+                            {% for field in form %}
+                                <div class="col-md-3 mb-1">
+                                    <div class="form-group">
+                                        <label for="{{ field.id_for_label }}" class="form-label small mb-0">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="invalid-feedback d-block small">
+                                                {% for error in field.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-1">
+                            <a href="{% url 'clients:list' %}" class="btn btn-outline-secondary btn-sm me-2 py-0">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm text-dark py-0">
+                                <i class="fas fa-save"></i> Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Ultra-compact form styles */
+    .form-control, .form-select {
+        padding: 0.15rem 0.3rem;
+        font-size: 0.8rem;
+        min-height: 24px;
+        height: 24px;
+    }
+    
+    .form-check-input {
+        width: 0.8rem;
+        height: 0.8rem;
+        margin-top: 0.1rem;
+    }
+    
+    .form-check-label {
+        font-size: 0.8rem;
+    }
+    
+    /* Remove all unnecessary spacing */
+    .card-body {
+        padding: 0.5rem;
+    }
+    
+    .mb-1 {
+        margin-bottom: 0.15rem !important;
+    }
+    
+    /* Standardize input heights */
+    input.form-control, select.form-select {
+        height: 24px;
+    }
+    
+    /* Reduce textarea height */
+    textarea.form-control {
+        min-height: 40px;
+        height: 40px !important;
+    }
+    
+    /* Smaller labels */
+    label.form-label {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+        color: #555;
+    }
+    
+    /* Smaller buttons */
+    .btn-sm {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.75rem;
+        line-height: 2.2;
+    }
+    
+    /* Remove help text to save space */
+    .form-text {
+        display: none;
+    }
+    
+    /* Tighter column layout */
+    .row.g-1 {
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+    
+    .row.g-1 > [class*="col-"] {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const approvedCostInput = document.querySelector('[name="approved_cost"]');
+    const gstInput = document.querySelector('[name="gst_service_percentage"]');
+    const finalCostInput = document.querySelector('[name="final_cost"]');
+    const startDateInput = document.querySelector('[name="start_date"]');
+    const workingDaysInput = document.querySelector('[name="working_days"]');
+    const endDateInput = document.querySelector('[name="end_date"]');
+    
+    // Add Bootstrap classes to all form inputs
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (input.type === 'checkbox') {
+            input.classList.add('form-check-input');
+            // Wrap checkbox label in proper bootstrap structure if not already
+            if (input.parentElement.tagName !== 'DIV' || !input.parentElement.classList.contains('form-check')) {
+                const label = document.querySelector(`label[for="${input.id}"]`);
+                if (label) {
+                    label.classList.add('form-check-label');
+                }
+            }
+        } else if (input.tagName === 'SELECT') {
+            input.classList.add('form-select', 'form-select-sm');
+        } else if (input.tagName === 'TEXTAREA') {
+            input.classList.add('form-control', 'form-control-sm');
+        } else {
+            input.classList.add('form-control', 'form-control-sm');
+        }
+    });
+
+    function formatDateToIndian(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+    
+    function calculateFinalCost() {
+        const approvedCost = parseFloat(approvedCostInput.value) || 0;
+        const gstPercentage = parseFloat(gstInput.value) || 0;
+        const gstAmount = approvedCost * (gstPercentage / 100);
+        const finalCost = approvedCost + gstAmount;
+        if (finalCostInput) finalCostInput.value = finalCost.toFixed(2);
+    }
+
+    function calculateEndDate() {
+        if (!startDateInput.value || !workingDaysInput.value) return;
+        
+        const startDate = new Date(startDateInput.value);
+        let workingDays = parseInt(workingDaysInput.value);
+        let currentDate = new Date(startDate);
+        
+        while (workingDays > 0) {
+            currentDate.setDate(currentDate.getDate() + 1);
+            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+                workingDays--;
+            }
+        }
+        
+        const formattedDate = currentDate.toISOString().split('T')[0];
+        if (endDateInput) endDateInput.value = formattedDate;
+    }
+
+    // Add event listeners
+    if (approvedCostInput) {
+        approvedCostInput.addEventListener('input', calculateFinalCost);
+    }
+    if (gstInput) {
+        gstInput.addEventListener('input', calculateFinalCost);
+    }
+    if (startDateInput) {
+        startDateInput.addEventListener('input', calculateEndDate);
+    }
+    if (workingDaysInput) {
+        workingDaysInput.addEventListener('input', calculateEndDate);
+    }
+    
+    // Initial calculations
+    calculateFinalCost();
+    calculateEndDate();
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        calculateFinalCost();
+        calculateEndDate();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,349 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'main.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <title>{% block title %}{% endblock %} -Touchcodes</title>
+    
+    <style>
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .logo-image {
+            height: 50px;
+            width: 400px;
+            margin-right: 10px;
+            object-fit: contain;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .nav-link {
+            color: black !important;
+            font-weight: bold !important;
+        }
+        .nav-link:hover {
+            color: #333 !important;
+        }
+        
+        /* Standardized Notification Styles */
+
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s ease;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            font-weight: bold;
+        }
+
+        /* Notification Sidebar */
+        .notification-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100vh;
+            background-color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1040;
+            overflow-y: auto;
+            transition: transform 0.25s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        .notification-sidebar.show {
+            transform: translateX(0);
+        }
+
+        .notification-sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background-color: #ffffff;
+            z-index: 1;
+        }
+
+        .notification-sidebar-body {
+            padding: 0;
+        }
+
+        /* Notification Items */
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: background-color 0.2s;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-item .notification-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .notification-item .notification-message {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #212529;
+        }
+
+        .notification-item .notification-meta {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        /* Close Button */
+        .close-sidebar {
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .close-sidebar:hover {
+            color: #212529;
+        }
+
+        /* Empty State */
+        .notification-empty {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        /* Loading State */
+        .notification-loading {
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 576px) {
+            .notification-sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="{% static 'images/logo5.png' %}" alt="Touchcodes Logo" height="45" width="180">
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                    </li>
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'team:detail' active_team.id %}">{{ active_team.name }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard:index' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'leads:list' %}">Leads</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'clients:list' %}">Clients</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link notification-bell" href="#" id="notificationBell">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge d-none" id="notificationBadge">0</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end py-1" aria-labelledby="userDropdown" style="min-width: 120px; font-size: 0.875rem;">
+                                <li><a class="dropdown-item py-1" href="{% url 'userprofile:myaccount' %}">My Account</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item py-1">Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Log in</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary ms-2" href="{% url 'userprofile:signup' %}">Sign up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Sidebar -->
+    <div class="notification-sidebar" id="notificationSidebar">
+        <div class="notification-sidebar-header">
+            <h5 class="mb-0">Notifications</h5>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-sidebar-body" id="notificationList">
+            <div class="notification-loading">Loading notifications...</div>
+        </div>
+    </div>
+
+    <main class="flex-grow-1 container my-5" id="mainContent">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="py-4 bg-light text-center mt-auto" id="pageFooter">
+        <div class="container">
+            <p class="mb-0 text-muted small">Copyright &copy; 2025 - Touchcodes. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+
+    {% if request.user.is_authenticated %}
+    <script>
+        // DOM elements
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationSidebar = document.getElementById('notificationSidebar');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+
+        // Toggle notification sidebar
+        notificationBell.addEventListener('click', function(e) {
+            e.preventDefault();
+            notificationSidebar.classList.toggle('show');
+            fetchNotifications(); // Refresh notifications when opened
+        });
+
+        // Close notification sidebar
+        closeSidebar.addEventListener('click', function() {
+            notificationSidebar.classList.remove('show');
+        });
+
+        // Click outside to close
+        document.addEventListener('click', function(e) {
+            if (!notificationSidebar.contains(e.target) && 
+                e.target !== notificationBell && 
+                !notificationBell.contains(e.target)) {
+                notificationSidebar.classList.remove('show');
+            }
+        });
+
+        async function fetchNotifications() {
+            try {
+                notificationList.innerHTML = '<div class="notification-loading">Loading notifications...</div>';
+                
+                const response = await fetch("{% url 'clients:get_notifications' %}");
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                if (data.notifications && data.notifications.length > 0) {
+                    notificationBadge.textContent = data.notifications.length;
+                    notificationBadge.classList.remove('d-none');
+                    
+                    notificationList.innerHTML = data.notifications.map(notification => `
+                        <div class="notification-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="notification-title">${notification.name}</div>
+                                <div class="notification-time">${notification.days_remaining} days left</div>
+                            </div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-meta">
+                                ${notification.type === 'activity' ? 
+                                    `Due: ${notification.due_date}` : 
+                                    `End: ${notification.end_date}`}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    notificationBadge.classList.add('d-none');
+                    notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+                }
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                notificationList.innerHTML = 
+                    '<div class="notification-empty text-danger">Error loading notifications</div>';
+            }
+        }
+
+        // Initialize notifications
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNotifications();
+            // Update notifications every minute
+            setInterval(fetchNotifications, 60000);
+        });
+    </script>
+    {% endif %}
+</body>
+</html>

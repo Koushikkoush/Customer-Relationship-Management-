@@ -1,0 +1,76 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-10 p-0">
+    <div class="row g-0 h-100">
+        <!-- Photo Section -->
+        <div class="col-md-6 d-none d-md-block" style="background-image: url('/static/images/login_page.png'); background-size: cover; background-position: center;">
+            <!-- Optional: Add an overlay or logo here -->
+            {% comment %} <div class="h-100 d-flex align-items-center justify-content-center" style="background-color: rgba(0,0,0,0.3);">
+                <h2 class="text-white text-center">Welcome Back!</h2>
+            </div> {% endcomment %}
+        </div>
+        
+        <!-- Login Form Section -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center bg-light">
+            <div class="w-100 px-4 px-sm-5" style="max-width: 450px;">
+                <h1 class="mb-4 text-center text-dark">Log in</h1>
+
+                <form method="post" action=".">
+                    {% csrf_token %}
+
+                    <!-- Form Fields -->
+                    <div class="mb-3">
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ field.errors|join:", " }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-100 btn btn-primary btn-lg mb-3 text-dark">
+                        Submit
+                    </button>
+
+                    <!-- Additional Links -->
+                    <div class="text-center">
+                        <p class="text-muted small mb-2">
+                            Don't have an account? 
+                            <a href="{% url 'userprofile:signup' %}" class="text-decoration-none text-primary">Sign up</a>
+                        </p>
+                        <p class="text-muted small">
+                            Forgot your password? 
+                            <a href="#" class="text-decoration-none text-primary">Reset it</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom CSS to ensure no scrolling and full-page layout */
+    body, html {
+        height: 10%;
+        margin: 0;
+        overflow: hidden;
+    }
+    .form-control {
+        padding: 0.75rem 1rem;
+    }
+</style>
+{% endblock %}

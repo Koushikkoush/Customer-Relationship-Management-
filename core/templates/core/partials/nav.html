@@ -1,0 +1,90 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'main.min.css' %}">
+
+    <style>
+        /* Hover effect for navbar links */
+        .hover-effect {
+            transition: all 0.3s ease-in-out;
+        }
+        .hover-effect:hover {
+            color: #ffcc00 !important;
+            transform: scale(1.05);
+        }
+    </style>
+
+    <title>{% block title %}{% endblock %} - Touchcodes</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <!-- Logo / Brand -->
+            <a class="navbar-brand text-white fw-bold" href="/">Touchcodes</a>
+
+            <!-- Toggle button for mobile -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link text-white hover-effect" href="{% url 'about' %}">About</a>
+                    </li>
+
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link text-white hover-effect" href="{% url 'team:detail' active_team.id %}">{{ active_team.name }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white hover-effect" href="{% url 'dashboard:index' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light rounded-pill mx-1 hover-effect" href="{% url 'leads:list' %}">Leads</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light rounded-pill mx-1 hover-effect" href="{% url 'clients:list' %}">Clients</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-dark rounded-pill mx-1 hover-effect" href="{% url 'userprofile:myaccount' %}">My Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-dark rounded-pill mx-1 hover-effect" href="{% url 'userprofile:myaccount' %}">My Account</a>
+                        </li>
+                        
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light rounded-pill mx-1 hover-effect" href="{% url 'login' %}">Log in</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-warning rounded-pill mx-1 hover-effect text-dark" href="{% url 'userprofile:signup' %}">Sign up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+</body>
+</html>

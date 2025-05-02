@@ -1,0 +1,153 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-6 p-0">
+    <div class="row g-0 h-10">
+        <!-- Left side - Image -->
+        <div class="col-md-6 d-none d-md-block position-relative">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('{% static 'images/s.png' %}') center/cover no-repeat;">
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0, 0, 0, 0.5);">
+                    <div class="text-center text-white p-4">
+                        <h2 class="display-4 fw-bold mb-3">Welcome to Touchcodes CRM</h2>
+                        <p class="lead">Manage your business relationships effectively</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side - Form -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center bg-light">
+            <div class="card border-0 shadow-sm rounded-4 p-4 my-3 mx-auto" style="max-width: 450px; width: 90%;">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Create Account</h3>
+                    
+                    <form method="post" action="." class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="form-floating mb-3">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up
+                        </button>
+                        
+                        <p class="text-center text-muted small mb-0">
+                            Already have an account? 
+                            <a href="{% url 'login' %}" class="text-decoration-none">Log in</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    
+    forms.forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    });
+
+    // Apply Bootstrap classes to form fields
+    const formInputs = document.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    formInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.classList.add('form-select');
+        } else {
+            input.classList.add('form-control');
+        }
+        
+        // Add placeholder attribute if it doesn't exist
+        if (!input.hasAttribute('placeholder') && input.hasAttribute('id')) {
+            const label = document.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                input.setAttribute('placeholder', label.textContent.trim());
+            }
+        }
+    });
+});
+</script>
+
+<style>
+:root {
+    --primary-color: #008080;
+    --primary-hover: #006666;
+}
+
+/* Reduced field height */
+.form-floating > .form-control,
+.form-floating > .form-select {
+    height: calc(2.5rem + 2px);
+    line-height: 1.25;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.form-floating > label {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    font-size: 0.875rem;
+    height: calc(2.5rem + 2px);
+}
+
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-floating > .form-control:focus,
+.form-floating > .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rounded-4 {
+    border-radius: 1rem;
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 95%;
+    }
+}
+</style>
+{% endblock %}

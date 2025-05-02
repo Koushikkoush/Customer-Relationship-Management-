@@ -1,0 +1,123 @@
+{% extends 'core/base.html' %}
+
+{% block title %}About Us - Touchcodes{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+          <h1 class="display-4 fw-bold mb-3">
+            <span style="color: green;">About</span> 
+            <span style="color: green;">Touchcodes</span>
+          </h1>
+          
+            <div class="w-75 mx-auto">
+                <p class="lead text-muted">Our experienced hands and essential technical skills will help you reach the heights.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-3 overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c" 
+                     class="img-fluid" 
+                     alt="Team collaboration"
+                     style="height: 400px; object-fit: cover;">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ps-lg-4 mt-4 mt-lg-0">
+                <h2 class="h3 fw-bold mb-4">Leading Software Development Company in Bangalore</h2>
+                <p class="text-muted">Touchcodes is the leading software development company based in Bangalore. Our inception dates back to 2015 by a team of diligent people with a clear vision and mission to shape the future and make a global presence.</p>
+                <p class="text-muted">Our staff consists of qualified professionals who specialize in various technologies, programming languages, practices, and development methodologies, successfully implementing them in the software development process.</p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="#" class="btn btn-primary px-4">Contact Us</a>
+                    <a href="#" class="btn btn-outline-secondary px-4">Our Services</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <h3 class="display-4 fw-bold text-primary">10+</h3>
+                <p class="text-muted mb-0">Years Experience</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <h3 class="display-4 fw-bold text-success">1000+</h3>
+                <p class="text-muted mb-0">Projects Completed</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <h3 class="display-4 fw-bold text-info">50+</h3>
+                <p class="text-muted mb-0">Expert Team</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center p-4">
+                <h3 class="display-4 fw-bold text-warning">91%</h3>
+                <p class="text-muted mb-0">Client Satisfaction</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h2 class="h3 fw-bold">Our Core Values</h2>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="text-primary mb-3">
+                    <i class="fas fa-lightbulb fa-2x"></i>
+                </div>
+                <h4 class="h5 fw-bold">Innovation</h4>
+                <p class="text-muted mb-0">We constantly innovate and adapt to new technologies to deliver cutting-edge solutions.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="text-success mb-3">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+                <h4 class="h5 fw-bold">Collaboration</h4>
+                <p class="text-muted mb-0">We believe in the power of teamwork and collaborative approach to problem-solving.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-4 h-100">
+                <div class="text-info mb-3">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <h4 class="h5 fw-bold">Excellence</h4>
+                <p class="text-muted mb-0">We strive for excellence in every project we undertake, ensuring the highest quality.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.display-4 {
+    font-size: 2.5rem;
+}
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
