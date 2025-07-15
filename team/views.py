@@ -4,6 +4,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from .forms import TeamForm
 from .models import Team
+from userprofile.models import Userprofile, Role
+from core.decorators import role_required
 
 
 @login_required
@@ -49,4 +51,37 @@ def edit_team(request, pk):
     return render(request, 'team/edit_team.html', {
         'team': team,
         'form': form
+    })
+
+
+@login_required
+@role_required(['admin'])
+def manage_roles(request):
+    team = request.user.userprofile.active_team
+    team_members = Userprofile.objects.filter(active_team=team)
+    
+    return render(request, 'team/manage_roles.html', {
+        'team': team,
+        'team_members': team_members
+    })
+
+@login_required
+@role_required(['admin'])
+def change_role(request, user_id):
+    team = request.user.userprofile.active_team
+    user_profile = get_object_or_404(Userprofile, user_id=user_id, active_team=team)
+    available_roles = Role.objects.filter(team=team)
+    
+    if request.method == 'POST':
+        role_id = request.POST.get('role')
+        if role_id:
+            role = get_object_or_404(Role, id=role_id, team=team)
+            user_profile.role = role
+            user_profile.save()
+            messages.success(request, f"Role updated for {user_profile.user.username}")
+        return redirect('team:manage_roles')
+    
+    return render(request, 'team/change_role.html', {
+        'user_profile': user_profile,
+        'available_roles': available_roles
     })

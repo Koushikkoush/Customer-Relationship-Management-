@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Plan(models.Model):
     name = models.CharField(max_length=50)
@@ -34,4 +36,14 @@ class Team(models.Model):
                 self.save()
 
             return self.plan
+
+
+@receiver(post_save, sender=Team)
+def create_default_role(sender, instance, created, **kwargs):
+    if created:
+        from userprofile.models import Role
+        Role.objects.create(
+            name='admin',
+            team=instance
+        )
             

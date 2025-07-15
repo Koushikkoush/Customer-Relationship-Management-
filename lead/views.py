@@ -13,6 +13,7 @@ from client.models import Client, Comment as ClientComment
 from team.models import Team
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from core.decorators import role_required
 
 
 @login_required

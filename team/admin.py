@@ -1,6 +1,14 @@
 from django.contrib import admin
+from .models import Team
+from userprofile.models import Role
 
-from .models import Team, Plan
+class RoleInline(admin.TabularInline):
+    model = Role
+    extra = 0
 
-admin.site.register(Team)
-admin.site.register(Plan)
+class TeamAdmin(admin.ModelAdmin):
+    inlines = [RoleInline]
+    list_display = ['name', 'created_by']
+    search_fields = ['name']
+
+admin.site.register(Team, TeamAdmin)

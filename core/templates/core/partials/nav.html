@@ -49,6 +49,14 @@
                         <a class="nav-link text-white hover-effect" href="{% url 'about' %}">About</a>
                     </li>
 
+                    <!-- Add this to your navigation menu where appropriate -->
+                    {% if request.user.is_authenticated and request.user.userprofile.role.name == 'admin' %}
+                    <li>
+                        <a href="{% url 'team:manage_roles' %}" class="py-2 px-6 flex hover:bg-teal-700 {% if request.path == '/team/manage-roles/' %}bg-teal-700{% endif %}">
+                            <span>Manage Roles</span>
+                        </a>
+                    </li>
+                    {% endif %}
                     {% if request.user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link text-white hover-effect" href="{% url 'team:detail' active_team.id %}">{{ active_team.name }}</a>
